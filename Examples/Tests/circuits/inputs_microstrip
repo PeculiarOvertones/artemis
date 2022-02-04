@@ -37,29 +37,29 @@ algo.macroscopic_sigma_method = laxwendroff
 ###############
 # geometry
 # each row represents a different part of the circuit
-# 1. SiO2 everywhere, then add in palladium and aluminum
-# 2. first segment of pd electrode
-# 3. upward portion of pd electrode
-# 4. last segment of pd electrode
-# 5. aluminum block
-# 6. gate oxide block
+# 1. air everywhere, then add in SiO2
+# 2. SiO2 at the bottom of the microstrip
 ###############
 
-macroscopic.sigma_function(x,y,z) = "sigma_SiO2
-+ (sigma_Pd - sigma_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y <= l_Pd) * (z >= d_Pd) * (z <= d_Pd + h_Pd)
-+ (sigma_Pd - sigma_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y >= l_Pd - h_Pd) * (y <= l_Pd) * (z > d_Pd + h_Pd) * (z <= d_Pd + h_Pd + th_gate)
-+ (sigma_Pd - sigma_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y > l_Pd) * (z >= d_Pd + th_gate) * (z <= d_Pd + h_Pd + th_gate)"
+macroscopic.sigma_function(x,y,z) = "sigma_air
++ (sigma_SiO2 - sigma_air)   * (z >= 0) * (z < h_port)"
 
-macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_SiO2
-+ eps_0 * (eps_r_Pd - eps_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y <= l_Pd) * (z >= d_Pd) * (z <= d_Pd + h_Pd)
-+ eps_0 * (eps_r_Pd - eps_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y >= l_Pd - h_Pd) * (y <= l_Pd) * (z > d_Pd + h_Pd) * (z <= d_Pd + h_Pd + th_gate)
-+ eps_0 * (eps_r_Pd - eps_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y > l_Pd) * (z >= d_Pd + th_gate) * (z <= d_Pd + h_Pd + th_gate)"
+macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_air
++ eps_0 * (eps_r_SiO2 - eps_r_air)  * (z >= 0) * (z < h_port)"
 
-macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_SiO2
-+ mu_0 * (mu_r_Pd - mu_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y <= l_Pd) * (z >= d_Pd) * (z <= d_Pd + h_Pd)
-+ mu_0 * (mu_r_Pd - mu_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y >= l_Pd - h_Pd) * (y <= l_Pd) * (z > d_Pd + h_Pd) * (z <= d_Pd + h_Pd + th_gate)
-+ mu_0 * (mu_r_Pd - mu_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (y > l_Pd) * (z >= d_Pd + th_gate) * (z <= d_Pd + h_Pd + th_gate)"
+macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
++ mu_0 * (mu_r_SiO2 - mu_r_air)  * (z >= 0) * (z < h_port)"
 
+#################################
+############ Microstrip (PEC) #############
+#################################
+warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
+
+warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 #################################
 ############ FIELDS #############
 #################################
@@ -82,41 +82,22 @@ my_constants.Lz = 4.e-6
 # material properties
 ###############
 my_constants.sigma_0 = 0.0
-my_constants.sigma_Pd = 1.e7
-my_constants.sigma_Al = 3.8e7
 my_constants.sigma_SiO2 = 1.e-10
-my_constants.sigma_gate = 1.e-10
+my_constants.sigma_air = 1.e-15
 
 my_constants.eps_0 = 8.8541878128e-12
-my_constants.eps_r_Pd = 13.
-my_constants.eps_r_Al = 1.7
 my_constants.eps_r_SiO2 = 3.8
-my_constants.eps_r_gate = 3.8
+my_constants.eps_r_air = 1.0006
 
 my_constants.mu_0 = 1.25663706212e-06
-my_constants.mu_r_Pd = 1.0008
-my_constants.mu_r_Al = 1.000022
 my_constants.mu_r_SiO2 = 1.0
-my_constants.mu_r_gate = 1.0
-
-###############
-# silicon and palladium cross section
-###############
-
-my_constants.h_Pd = 100.e-9
-my_constants.w_Pd = 2.e-6
-my_constants.d_Pd = 2.e-6
-my_constants.l_Pd = 3.e-6
-
-my_constants.th_gate = 20.e-9
-
-my_constants.l_Al = 1.5e-6
+my_constants.mu_r_air = 1.00000037
 
 ###############
 # waveguide port parameters
 ###############
-my_constants.w_port = 2.e-6
-my_constants.h_port = 2.e-6
+my_constants.w_port = Lx/2.
+my_constants.h_port = Lz/2.
 
 my_constants.freq = 100.e12
 
@@ -188,7 +169,7 @@ Int_yIntermPlane.reduction_type = integral
 Int_yIntermPlane.integration_type = surface
 Int_yIntermPlane.intervals = 1
 Int_yIntermPlane.surface_normal = Y
-my_constants.YIntermPlaneLoc=Ly - l_Al #Nodes aligned with Y
+my_constants.YIntermPlaneLoc=Ly/2. #Nodes aligned with Y
 
 Int_yOutputPlane.type = RawEFieldReduction
 Int_yOutputPlane.reduction_type = integral
@@ -199,7 +180,7 @@ my_constants.YOutputPlaneLoc=Ly-2*dy #Nodes aligned with Y
 
  Int_yInputPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
 Int_yIntermPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
-Int_yOutputPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port+th_gate) * 1"
+Int_yOutputPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
 
 ###############
 
