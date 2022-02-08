@@ -68,15 +68,15 @@ warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 # domain size
 # n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
 ###############
-my_constants.n_cellx = 200
+my_constants.n_cellx = 240
 my_constants.n_celly = 60
-my_constants.n_cellz = 400
+my_constants.n_cellz = 560
 my_constants.max_grid_size = 400
 my_constants.blocking_factor = 40
 
-my_constants.Lx = 4.e-6
-my_constants.Ly = 6.e-6
-my_constants.Lz = 4.e-6
+my_constants.Lx = 6.e-6
+my_constants.Ly = 1.5e-6
+my_constants.Lz = 14.0e-6
 
 ###############
 # material properties
@@ -96,10 +96,10 @@ my_constants.mu_r_air = 1.00000037
 ###############
 # waveguide port parameters
 ###############
-my_constants.w_port = Lx/2.
-my_constants.h_port = Lz/2.
+my_constants.h_port = Lz/3.
+my_constants.w_port = 2.13089*h_port
 
-my_constants.freq = 100.e12
+my_constants.freq = 50.e12
 
 ###############
 # derived quantities and fundamental constants - don't touch these
@@ -126,7 +126,8 @@ warpx.Ez_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.
 
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
-warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t) * (t < (1./freq))"
+#warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t) * (t < (1./freq))"
+warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
 
 warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
 
@@ -134,7 +135,8 @@ warpx.Bx_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.
 warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
-warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
+#warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t))"
 warpx.By_excitation_grid_function(x,y,z,t) = "0."
 warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
 
