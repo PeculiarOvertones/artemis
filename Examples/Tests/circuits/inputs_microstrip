@@ -75,8 +75,8 @@ my_constants.max_grid_size = 400
 my_constants.blocking_factor = 40
 
 my_constants.Lx = 6.e-6
-my_constants.Ly = 1.5e-6
-my_constants.Lz = 14.0e-6
+my_constants.Ly = 14.e-6
+my_constants.Lz = 1.5e-6
 
 ###############
 # material properties
