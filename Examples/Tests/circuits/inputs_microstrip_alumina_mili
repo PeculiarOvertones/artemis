@@ -1,7 +1,7 @@
 ################################
 ####### GENERAL PARAMETERS ######
 #################################
-max_step = 8000
+max_step = 4000
 
 amr.n_cell = n_cellx n_celly n_cellz
 amr.max_grid_size = max_grid_size
@@ -69,14 +69,14 @@ warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 # n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
 ###############
 my_constants.n_cellx = 120
-my_constants.n_celly = 280
-my_constants.n_cellz = 60
-my_constants.max_grid_size = 280
-my_constants.blocking_factor = 280
+my_constants.n_celly = 240
+my_constants.n_cellz = 120
+my_constants.max_grid_size = 240
+my_constants.blocking_factor = 240
 
-my_constants.Lx = 6.e-6
-my_constants.Ly = 14.e-6
-my_constants.Lz = 3.e-6
+my_constants.Lx = 6.e-3
+my_constants.Ly = 12.e-3
+my_constants.Lz = 6.e-3
 
 ###############
 # material properties
@@ -99,10 +99,11 @@ my_constants.mu_r_air = 1.00000037
 ###############
 # waveguide port parameters
 ###############
-my_constants.h_port = 5e-7
-my_constants.w_port = 0.97518438*h_port
+my_constants.h_port = 5e-4
+my_constants.w_port = h_port
+#my_constants.w_port = 0.97518438*h_port
 
-my_constants.freq = 50.e12
+my_constants.freq = 10.e9
 
 ###############
 # derived quantities and fundamental constants - don't touch these
@@ -152,7 +153,7 @@ diagnostics.diags_names = plt
 
 ###############
 # full plotfiles
-plt.intervals = 10
+plt.intervals = 500
 # plt.fields_to_plot = Ez Bx
 plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
 #plt.fields_to_plot = Ez epsilon sigma mu
@@ -161,7 +162,8 @@ plt.diag_type = Full
 ########################## Surface Integral on the Y-Plane #############################
 my_constants.eps=1.e-9
 
-warpx.reduced_diags_names = Int_yInputPlane Int_yInputPlane2 Int_yInputPlane3 Int_yIntermPlane Int_yIntermPlane2 Int_yIntermPlane3 Int_yOutputPlane  Int_yOutputPlane2 Int_yOutputPlane3 EvolumeInt
+# warpx.reduced_diags_names = Int_yInputPlane Int_yInputPlane2 Int_yInputPlane3 Int_yIntermPlane Int_yIntermPlane2 Int_yIntermPlane3 Int_yOutputPlane  Int_yOutputPlane2 Int_yOutputPlane3 EvolumeInt
+ warpx.reduced_diags_names = Int_yInputPlane Int_yIntermPlane Int_yOutputPlane  EvolumeInt plane1 plane2 plane3 plane4 plane5 plane6 plane7 plane8 plane9 plane10
 
 #Input port
 Int_yInputPlane.type = RawEFieldReduction
@@ -169,19 +171,19 @@ Int_yInputPlane.reduction_type = integral
 Int_yInputPlane.integration_type = surface
 Int_yInputPlane.intervals = 1
 Int_yInputPlane.surface_normal = Y
-my_constants.YInputPlaneLoc=6*dy #Nodes aligned with Y
+my_constants.YInputPlaneLoc=2*dy #Nodes aligned with Y
 
-Int_yInputPlane2.type = RawEFieldReduction
-Int_yInputPlane2.reduction_type = integral
-Int_yInputPlane2.integration_type = surface
-Int_yInputPlane2.intervals = 1
-Int_yInputPlane2.surface_normal = Y
-
-Int_yInputPlane3.type = RawEFieldReduction
-Int_yInputPlane3.reduction_type = integral
-Int_yInputPlane3.integration_type = surface
-Int_yInputPlane3.intervals = 1
-Int_yInputPlane3.surface_normal = Y
+#Int_yInputPlane2.type = RawEFieldReduction
+#Int_yInputPlane2.reduction_type = integral
+#Int_yInputPlane2.integration_type = surface
+#Int_yInputPlane2.intervals = 1
+#Int_yInputPlane2.surface_normal = Y
+#
+#Int_yInputPlane3.type = RawEFieldReduction
+#Int_yInputPlane3.reduction_type = integral
+#Int_yInputPlane3.integration_type = surface
+#Int_yInputPlane3.intervals = 1
+#Int_yInputPlane3.surface_normal = Y
 
 #Intermediate port
 Int_yIntermPlane.type = RawEFieldReduction
@@ -191,17 +193,17 @@ Int_yIntermPlane.intervals = 1
 Int_yIntermPlane.surface_normal = Y
 my_constants.YIntermPlaneLoc=Ly/2. #Nodes aligned with Y
 
-Int_yIntermPlane2.type = RawEFieldReduction
-Int_yIntermPlane2.reduction_type = integral
-Int_yIntermPlane2.integration_type = surface
-Int_yIntermPlane2.intervals = 1
-Int_yIntermPlane2.surface_normal = Y
-
-Int_yIntermPlane3.type = RawEFieldReduction
-Int_yIntermPlane3.reduction_type = integral
-Int_yIntermPlane3.integration_type = surface
-Int_yIntermPlane3.intervals = 1
-Int_yIntermPlane3.surface_normal = Y
+#Int_yIntermPlane2.type = RawEFieldReduction
+#Int_yIntermPlane2.reduction_type = integral
+#Int_yIntermPlane2.integration_type = surface
+#Int_yIntermPlane2.intervals = 1
+#Int_yIntermPlane2.surface_normal = Y
+#
+#Int_yIntermPlane3.type = RawEFieldReduction
+#Int_yIntermPlane3.reduction_type = integral
+#Int_yIntermPlane3.integration_type = surface
+#Int_yIntermPlane3.intervals = 1
+#Int_yIntermPlane3.surface_normal = Y
 
 #Output port
 Int_yOutputPlane.type = RawEFieldReduction
@@ -211,30 +213,99 @@ Int_yOutputPlane.intervals = 1
 Int_yOutputPlane.surface_normal = Y
 my_constants.YOutputPlaneLoc=Ly-2*dy #Nodes aligned with Y
 
+#Input Ports
+plane1.type = RawEFieldReduction
+plane1.reduction_type = integral
+plane1.integration_type = surface
+plane1.intervals = 1
+plane1.surface_normal = Y
+my_constants.plane1=3*dy #Nodes aligned with Y
 
-Int_yOutputPlane2.type = RawEFieldReduction
-Int_yOutputPlane2.reduction_type = integral
-Int_yOutputPlane2.integration_type = surface
-Int_yOutputPlane2.intervals = 1
-Int_yOutputPlane2.surface_normal = Y
+plane2.type = RawEFieldReduction
+plane2.reduction_type = integral
+plane2.integration_type = surface
+plane2.intervals = 1
+plane2.surface_normal = Y
+my_constants.plane2=6*dy #Nodes aligned with Y
 
-Int_yOutputPlane3.type = RawEFieldReduction
-Int_yOutputPlane3.reduction_type = integral
-Int_yOutputPlane3.integration_type = surface
-Int_yOutputPlane3.intervals = 1
-Int_yOutputPlane3.surface_normal = Y
+plane3.type = RawEFieldReduction
+plane3.reduction_type = integral
+plane3.integration_type = surface
+plane3.intervals = 1
+plane3.surface_normal = Y
+my_constants.plane3=9*dy #Nodes aligned with Y
+
+plane4.type = RawEFieldReduction
+plane4.reduction_type = integral
+plane4.integration_type = surface
+plane4.intervals = 1
+plane4.surface_normal = Y
+my_constants.plane4=12*dy #Nodes aligned with Y
+
+plane5.type = RawEFieldReduction
+plane5.reduction_type = integral
+plane5.integration_type = surface
+plane5.intervals = 1
+plane5.surface_normal = Y
+my_constants.plane5=15*dy #Nodes aligned with Y
+
+plane6.type = RawEFieldReduction
+plane6.reduction_type = integral
+plane6.integration_type = surface
+plane6.intervals = 1
+plane6.surface_normal = Y
+my_constants.plane6=18*dy #Nodes aligned with Y
+
+plane7.type = RawEFieldReduction
+plane7.reduction_type = integral
+plane7.integration_type = surface
+plane7.intervals = 1
+plane7.surface_normal = Y
+my_constants.plane7=21*dy #Nodes aligned with Y
+
+plane8.type = RawEFieldReduction
+plane8.reduction_type = integral
+plane8.integration_type = surface
+plane8.intervals = 1
+plane8.surface_normal = Y
+my_constants.plane8=24*dy #Nodes aligned with Y
+
+plane9.type = RawEFieldReduction
+plane9.reduction_type = integral
+plane9.integration_type = surface
+plane9.intervals = 1
+plane9.surface_normal = Y
+my_constants.plane9=27*dy #Nodes aligned with Y
+
+plane10.type = RawEFieldReduction
+plane10.reduction_type = integral
+plane10.integration_type = surface
+plane10.intervals = 1
+plane10.surface_normal = Y
+my_constants.plane10=30*dy #Nodes aligned with Y
 
  Int_yInputPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
- Int_yInputPlane2.reduced_function(x,y,z) = " (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
- Int_yInputPlane3.reduced_function(x,y,z) = " (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * 1"
+# Int_yInputPlane2.reduced_function(x,y,z) = " (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
+# Int_yInputPlane3.reduced_function(x,y,z) = " (y >= YInputPlaneLoc - dy/2.) * (y <= YInputPlaneLoc) * 1"
 
 Int_yIntermPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
-Int_yIntermPlane2.reduced_function(x,y,z) = " (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
-Int_yIntermPlane3.reduced_function(x,y,z) = " (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * 1"
+# Int_yIntermPlane2.reduced_function(x,y,z) = " (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
+# Int_yIntermPlane3.reduced_function(x,y,z) = " (y >= YIntermPlaneLoc - dy/2.) * (y <= YIntermPlaneLoc) * 1"
 
 Int_yOutputPlane.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
-Int_yOutputPlane2.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
-Int_yOutputPlane3.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * 1"
+# Int_yOutputPlane2.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
+# Int_yOutputPlane3.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * 1"
+
+ plane1.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane1 - dy/2.) * (y <= plane1) * (z > 0.) * (z <= h_port) * 1"
+ plane2.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane2 - dy/2.) * (y <= plane2) * (z > 0.) * (z <= h_port) * 1"
+ plane3.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane3 - dy/2.) * (y <= plane3) * (z > 0.) * (z <= h_port) * 1"
+ plane4.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane4 - dy/2.) * (y <= plane4) * (z > 0.) * (z <= h_port) * 1"
+ plane5.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane5 - dy/2.) * (y <= plane5) * (z > 0.) * (z <= h_port) * 1"
+ plane6.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane6 - dy/2.) * (y <= plane6) * (z > 0.) * (z <= h_port) * 1"
+ plane7.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane7 - dy/2.) * (y <= plane7) * (z > 0.) * (z <= h_port) * 1"
+ plane8.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane8 - dy/2.) * (y <= plane8) * (z > 0.) * (z <= h_port) * 1"
+ plane9.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane9 - dy/2.) * (y <= plane9) * (z > 0.) * (z <= h_port) * 1"
+ plane10.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane10 - dy/2.) * (y <= plane10) * (z > 0.) * (z <= h_port) * 1"
 
 EvolumeInt.type = FieldReduction
 EvolumeInt.intervals = 1
