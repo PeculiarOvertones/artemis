@@ -39,32 +39,27 @@ algo.macroscopic_sigma_method = laxwendroff
 # each row represents a different part of the circuit
 # 1. air everywhere, then add in alumina
 # 2. alumina at the bottom of the microstrip
-# 2. metal above alumina (aluminum or copper)
 ###############
 
 macroscopic.sigma_function(x,y,z) = "sigma_air
-+ (sigma_alumina - sigma_air)   * (z >= 0) * (z < h_port)
-+ (sigma_metal - sigma_air)  * (x >= -w_port/2) * (x <=w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
++ (sigma_alumina - sigma_air)   * (z >= 0) * (z < h_port)"
 
 macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_air
-+ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < h_port)
-+ eps_0 * (eps_r_metal - eps_r_air) * (x >= -w_port/2) * (x <= w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
++ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < h_port)"
 
 macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
-+ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < h_port)
-+ mu_0 * (mu_r_metal - mu_r_air)  * (x >= -w_port/2) * (x <= w_port/2) * (z >= 0) * (z < h_port + t_strip)"
-
++ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < h_port)"
 #################################
 ############ Microstrip (PEC) #############
-##################################
-#warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
-#
-#warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
-#warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
-#
-#warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
-#warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
-##################################
+#################################
+warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
+
+warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+#################################
 ############ FIELDS #############
 #################################
 
@@ -89,31 +84,23 @@ my_constants.sigma_0 = 0.0
 #my_constants.sigma_SiO2 = 1.e-10
 my_constants.sigma_alumina = 1.e-12
 my_constants.sigma_air = 1.e-15
-my_constants.sigma_metal = 3.8e7 #aluminum
-#my_constants.sigma_metal = 5.96e7 #copper
-
 
 my_constants.eps_0 = 8.8541878128e-12
 #my_constants.eps_r_SiO2 = 3.8
 my_constants.eps_r_alumina = 9.8
 my_constants.eps_r_air = 1.0006
-my_constants.eps_r_metal = 1e10 
 
 my_constants.mu_0 = 1.25663706212e-06
 #my_constants.mu_r_SiO2 = 1.0
 my_constants.mu_r_alumina = 1.0
 my_constants.mu_r_air = 1.00000037
-my_constants.mu_r_metal = 1.000022 #aluminum
-my_constants.mu_r_metal = 0.999994 #copper
 ###############
 # waveguide port parameters
 ###############
 my_constants.h_port = 5e-4
-my_constants.w_port = 0.97518*h_port
-my_constants.t_strip = 5e-5
-
+#my_constants.w_port = 0.97518*h_port
+my_constants.w_port = h_port
 my_constants.freq = 10.e9
-
 ###############
 # derived quantities and fundamental constants - don't touch these
 ###############
