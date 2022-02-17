@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright 2021 Revathi Jambunathan
+=======
+/* Copyright 2021 Revathi Jambunathan, Saurabh Sawant, Andrew Nonaka
+>>>>>>> upstream/development
  *
  * This file is part of WarpX.
  *
@@ -62,18 +66,23 @@ RawEFieldReduction::RawEFieldReduction (std::string rd_name)
     if (m_reduction_type == 2) {
         m_integral_type = GetAlgorithmInteger (pp_rd_name, "integration_type");
     }
-    amrex::Print() << " reduction type : " << m_reduction_type << " integration type " << m_integral_type << "\n";
-
     std::string surface_normal_string;
     pp_rd_name.get("surface_normal", surface_normal_string);
-    if (surface_normal_string == "X") {
+    if (surface_normal_string == "x" || surface_normal_string == "X") {
         m_surface_normal[0] = 1;
     }
-    else if (surface_normal_string == "Y") {
+#if (AMREX_SPACEDIM==2)
+    else if (surface_normal_string == "y" || surface_normal_string == "Y") {
+        amrex::Abort("In 2-D, we compute over an X-Z plane. So the plane of interest for the surface integral is Z.");
+    }
+    else if (surface_normal_string == "z" || surface_normal_string == "Z") {
         m_surface_normal[1] = 1;
     }
-#if (AMREX_SPACEDIM==3)
-    else if (surface_normal_string == "Z") {
+#else
+    else if (surface_normal_string == "y" || surface_normal_string == "Y") {
+        m_surface_normal[1] = 1;
+    }
+    else if (surface_normal_string == "z" || surface_normal_string == "Z") {
         m_surface_normal[2] = 1;
     }
 #endif
@@ -119,4 +128,7 @@ void RawEFieldReduction::ComputeDiags (int step)
         ComputeRawEFieldReduction<amrex::ReduceOpSum>();
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/development
