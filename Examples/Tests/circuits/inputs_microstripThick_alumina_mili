@@ -149,7 +149,7 @@ warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
 #warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
-warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50.)*(sin(2*pi*freq*t))"
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/1000000)*(sin(2*pi*freq*t))"
 warpx.By_excitation_grid_function(x,y,z,t) = "0."
 warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
 
