@@ -1,7 +1,7 @@
 ################################
 ####### GENERAL PARAMETERS ######
 #################################
-max_step = 8000
+max_step = 24000
 
 amr.n_cell = n_cellx n_celly n_cellz
 amr.max_grid_size = max_grid_size
@@ -73,13 +73,13 @@ macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
 # n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
 ###############
 my_constants.n_cellx = 100
-my_constants.n_celly = 240
+my_constants.n_celly = 720
 my_constants.n_cellz = 200
-my_constants.max_grid_size = 240
-my_constants.blocking_factor = 240
+my_constants.max_grid_size = 720
+my_constants.blocking_factor = 720
 
 my_constants.Lx = 5.e-3
-my_constants.Ly = 12.e-3
+my_constants.Ly = 36.e-3
 my_constants.Lz = 5.e-3
 
 ###############
@@ -97,7 +97,7 @@ my_constants.eps_0 = 8.8541878128e-12
 #my_constants.eps_r_SiO2 = 3.8
 my_constants.eps_r_alumina = 9.8
 my_constants.eps_r_air = 1.0006
-my_constants.eps_r_metal = 1e10 
+my_constants.eps_r_metal = 1.0
 
 my_constants.mu_0 = 1.25663706212e-06
 #my_constants.mu_r_SiO2 = 1.0
@@ -149,7 +149,7 @@ warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
 #warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
-warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/1000000)*(sin(2*pi*freq*t))"
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50)*(sin(2*pi*freq*t))"
 warpx.By_excitation_grid_function(x,y,z,t) = "0."
 warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
 
@@ -162,7 +162,7 @@ diagnostics.diags_names = plt
 
 ###############
 # full plotfiles
-plt.intervals = 500
+plt.intervals = 1000
 # plt.fields_to_plot = Ez Bx
 plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
 #plt.fields_to_plot = Ez epsilon sigma mu
