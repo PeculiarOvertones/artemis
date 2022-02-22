@@ -124,7 +124,3 @@ void RawEFieldReduction::ComputeDiags (int step)
         ComputeRawEFieldReduction<amrex::ReduceOpSum>();
     }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/development
