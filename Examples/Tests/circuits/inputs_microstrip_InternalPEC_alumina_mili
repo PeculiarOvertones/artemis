@@ -54,10 +54,10 @@ macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
 #################################
 warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
 
-warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny) * (y > dy) * (y < Ly-dy)
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 
-warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny) * (y > dy) * (y < Ly-dy)
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 #################################
 ############ FIELDS #############
@@ -122,7 +122,7 @@ warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
 
 warpx.Ex_excitation_flag_function(x,y,z) = "0."
 warpx.Ey_excitation_flag_function(x,y,z) = "0."
-warpx.Ez_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
+warpx.Ez_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
 
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
@@ -131,7 +131,7 @@ warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
 
 warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
 
-warpx.Bx_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
+warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
 warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
