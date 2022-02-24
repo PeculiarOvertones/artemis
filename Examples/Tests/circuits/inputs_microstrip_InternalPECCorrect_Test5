@@ -61,7 +61,7 @@ warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
 warpx.Ex_excitation_flag_function(x,y,z) = "1* ((z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.- tiny) * (x < w_port/2. + tiny) * (y > dy-tiny))"
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 
-warpx.Ey_excitation_flag_function(x,y,z) = "1* ((z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.- tiny) * (x < w_port/2. + tiny) * (y > dy) )"
+warpx.Ey_excitation_flag_function(x,y,z) = "1* ((z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.- tiny) * (x < w_port/2. + tiny) * (y > dy-tiny) )"
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 
 warpx.Ez_excitation_flag_function(x,y,z) = "1* ((x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.))"
@@ -71,7 +71,7 @@ warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
 
 warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
 warpx.By_excitation_flag_function(x,y,z) = "0."
-warpx.Bz_excitation_flag_function(x,y,z) = "1*((z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny) * (y > dy) )"
+warpx.Bz_excitation_flag_function(x,y,z) = "1*((z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny) * (y > dy-tiny) )"
 
 warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50.)*(sin(2*pi*freq*t))"
 warpx.By_excitation_grid_function(x,y,z,t) = "0."
@@ -140,7 +140,7 @@ diagnostics.diags_names = plt
 
 ###############
 # full plotfiles
-plt.intervals = 500
+plt.intervals = 200
 # plt.fields_to_plot = Ez Bx
 plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
 #plt.fields_to_plot = Ez epsilon sigma mu
