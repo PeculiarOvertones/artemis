@@ -75,8 +75,8 @@ macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
 my_constants.n_cellx = 60
 my_constants.n_celly = 720
 my_constants.n_cellz = 120
-my_constants.max_grid_size = 720
-my_constants.blocking_factor = 720
+my_constants.max_grid_size = 60
+my_constants.blocking_factor = 60
 
 my_constants.Lx = 3.e-3
 my_constants.Ly = 36.e-3
