@@ -72,15 +72,15 @@ macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
 # domain size
 # n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
 ###############
-my_constants.n_cellx = 100
+my_constants.n_cellx = 60
 my_constants.n_celly = 720
-my_constants.n_cellz = 200
+my_constants.n_cellz = 120
 my_constants.max_grid_size = 720
 my_constants.blocking_factor = 720
 
-my_constants.Lx = 5.e-3
+my_constants.Lx = 3.e-3
 my_constants.Ly = 36.e-3
-my_constants.Lz = 5.e-3
+my_constants.Lz = 3.e-3
 
 ###############
 # material properties
@@ -135,7 +135,7 @@ warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
 
 warpx.Ex_excitation_flag_function(x,y,z) = "0."
 warpx.Ey_excitation_flag_function(x,y,z) = "0."
-warpx.Ez_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
+warpx.Ez_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
 
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
@@ -144,7 +144,7 @@ warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
 
 warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
 
-warpx.Bx_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
+warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
 warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
