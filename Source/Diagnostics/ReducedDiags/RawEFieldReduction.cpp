@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright 2021 Revathi Jambunathan
-=======
 /* Copyright 2021 Revathi Jambunathan, Saurabh Sawant, Andrew Nonaka
->>>>>>> upstream/development
  *
  * This file is part of WarpX.
  *
@@ -128,7 +124,3 @@ void RawEFieldReduction::ComputeDiags (int step)
         ComputeRawEFieldReduction<amrex::ReduceOpSum>();
     }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/development

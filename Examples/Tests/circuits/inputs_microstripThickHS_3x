@@ -1,7 +1,7 @@
 ################################
 ####### GENERAL PARAMETERS ######
 #################################
-max_step = 8000
+max_step = 24000
 
 amr.n_cell = n_cellx n_celly n_cellz
 amr.max_grid_size = max_grid_size
@@ -39,27 +39,32 @@ algo.macroscopic_sigma_method = laxwendroff
 # each row represents a different part of the circuit
 # 1. air everywhere, then add in alumina
 # 2. alumina at the bottom of the microstrip
+# 2. metal above alumina (aluminum or copper)
 ###############
 
 macroscopic.sigma_function(x,y,z) = "sigma_air
-+ (sigma_alumina - sigma_air)   * (z >= 0) * (z < h_port)"
++ (sigma_alumina - sigma_air)   * (z >= 0) * (z < h_port)
++ (sigma_metal - sigma_air)  * (x >= -w_port/2) * (x <=w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
 
 macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_air
-+ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < h_port)"
++ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < h_port)
++ eps_0 * (eps_r_metal - eps_r_air) * (x >= -w_port/2) * (x <= w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
 
 macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
-+ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < h_port)"
++ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < h_port)
++ mu_0 * (mu_r_metal - mu_r_air)  * (x >= -w_port/2) * (x <= w_port/2) * (z >= 0) * (z < h_port + t_strip)"
+
 #################################
 ############ Microstrip (PEC) #############
-#################################
-warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
-
-warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
-warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
-
-warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
-warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
-#################################
+##################################
+#warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
+#
+#warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+#warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+#
+#warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+#warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+##################################
 ############ FIELDS #############
 #################################
 
@@ -67,15 +72,15 @@ warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 # domain size
 # n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
 ###############
-my_constants.n_cellx = 100
-my_constants.n_celly = 240
-my_constants.n_cellz = 200
-my_constants.max_grid_size = 240
-my_constants.blocking_factor = 240
+my_constants.n_cellx = 60
+my_constants.n_celly = 720
+my_constants.n_cellz = 120
+my_constants.max_grid_size = 60
+my_constants.blocking_factor = 60
 
-my_constants.Lx = 5.e-3
-my_constants.Ly = 12.e-3
-my_constants.Lz = 5.e-3
+my_constants.Lx = 3.e-3
+my_constants.Ly = 36.e-3
+my_constants.Lz = 3.e-3
 
 ###############
 # material properties
@@ -84,23 +89,31 @@ my_constants.sigma_0 = 0.0
 #my_constants.sigma_SiO2 = 1.e-10
 my_constants.sigma_alumina = 1.e-12
 my_constants.sigma_air = 1.e-15
+my_constants.sigma_metal = 3.8e7 #aluminum
+#my_constants.sigma_metal = 5.96e7 #copper
+
 
 my_constants.eps_0 = 8.8541878128e-12
 #my_constants.eps_r_SiO2 = 3.8
 my_constants.eps_r_alumina = 9.8
 my_constants.eps_r_air = 1.0006
+my_constants.eps_r_metal = 1.0
 
 my_constants.mu_0 = 1.25663706212e-06
 #my_constants.mu_r_SiO2 = 1.0
 my_constants.mu_r_alumina = 1.0
 my_constants.mu_r_air = 1.00000037
+my_constants.mu_r_metal = 1.000022 #aluminum
+my_constants.mu_r_metal = 0.999994 #copper
 ###############
 # waveguide port parameters
 ###############
 my_constants.h_port = 5e-4
-#my_constants.w_port = 0.97518*h_port
-my_constants.w_port = h_port
+my_constants.w_port = 0.97518*h_port
+my_constants.t_strip = 5e-5
+
 my_constants.freq = 10.e9
+
 ###############
 # derived quantities and fundamental constants - don't touch these
 ###############
@@ -122,7 +135,7 @@ warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
 
 warpx.Ex_excitation_flag_function(x,y,z) = "0."
 warpx.Ey_excitation_flag_function(x,y,z) = "0."
-warpx.Ez_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
+warpx.Ez_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
 
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
@@ -131,12 +144,12 @@ warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
 
 warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
 
-warpx.Bx_excitation_flag_function(x,y,z) = "2* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
+warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
 warpx.By_excitation_flag_function(x,y,z) = "0."
 warpx.Bz_excitation_flag_function(x,y,z) = "0."
 
 #warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
-warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50.)*(sin(2*pi*freq*t))"
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50)*(sin(2*pi*freq*t))"
 warpx.By_excitation_grid_function(x,y,z,t) = "0."
 warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
 
@@ -149,7 +162,7 @@ diagnostics.diags_names = plt
 
 ###############
 # full plotfiles
-plt.intervals = 500
+plt.intervals = 1000
 # plt.fields_to_plot = Ez Bx
 plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
 #plt.fields_to_plot = Ez epsilon sigma mu
@@ -328,7 +341,7 @@ plane14.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >=
 plane15.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane15 - dy/2.) * (y < plane15 + dy/2.) * (z > 0.) * (z <= h_port) * 1"
 plane16.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane16 - dy/2.) * (y <= plane16) * (z > 0.) * (z <= h_port) * 1"
 plane17.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane17 - dy/2.) * (y <= plane17) * (z > 0.) * (z <= h_port) * 1"
-plane18.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane18 - dy/2.) * (y <= plane18) * (z > 0.) * (z <= h_port) * 1"
+plane18.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane18 - dy/2.) * (y < plane18 + dy/2.) * (z > 0.) * (z <= h_port) * 1"
 
 EvolumeInt.type = FieldReduction
 EvolumeInt.intervals = 1
