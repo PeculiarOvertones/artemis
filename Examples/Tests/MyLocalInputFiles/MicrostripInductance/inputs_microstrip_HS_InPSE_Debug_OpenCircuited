@@ -144,7 +144,7 @@ diagnostics.diags_names = plt
 
 ###############
 # full plotfiles
-plt.intervals = 50
+plt.intervals = 10
 plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
 plt.diag_type = Full
 
