@@ -1,0 +1,151 @@
+################################
+####### GENERAL PARAMETERS ######
+#################################
+max_step = 44000
+
+amr.n_cell = n_cellx n_celly n_cellz
+amr.max_grid_size = max_grid_size
+amr.blocking_factor = blocking_factor
+amr.refine_grid_layout = 1  # if n_MPI > n_grids, the grids will be successively divided in half until n_MPI <= n_grids
+
+# need this here for some reason with blocking_factor = 40
+amr.check_input = 0
+
+geometry.dims = 3
+geometry.prob_lo = -Lx/2. 0. 0.
+geometry.prob_hi =  Lx/2. Ly Lz
+
+amr.max_level = 0
+
+# use pec instead of pml overlaying current source so you don't get a reflection
+boundary.field_lo = pml pml pec
+boundary.field_hi = pml pml pml
+
+#################################
+############ NUMERICS ###########
+#################################
+warpx.verbose = 1
+
+warpx.cfl = 0.9
+
+# vacuum or macroscopic
+algo.em_solver_medium = macroscopic
+
+# laxwendroff or backwardeuler
+algo.macroscopic_sigma_method = laxwendroff
+
+###############
+# geometry
+# each row represents a different part of the circuit
+# 1. air everywhere, then add in alumina
+# 2. alumina at the bottom of the microstrip
+# 2. metal above alumina (aluminum or copper)
+###############
+
+macroscopic.sigma_function(x,y,z) = "sigma_air
++ (sigma_alumina - sigma_air)   * (z >= 0) * (z < sub_thick)"
+
+macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_air
++ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < sub_thick)"
+
+macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
++ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < sub_thick)"
+
+##################################
+############ FIELDS #############
+#################################
+
+###############
+# domain size
+# n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
+###############
+my_constants.n_cellx = 60
+my_constants.n_celly = 1440
+my_constants.n_cellz = 60
+my_constants.max_grid_size = 60
+my_constants.blocking_factor = 60
+
+my_constants.Lx = 3.e-3
+my_constants.Ly = 72.e-3
+my_constants.Lz = 3.e-3
+
+
+###############
+# material properties
+###############
+my_constants.sigma_0 = 0.0
+#my_constants.sigma_SiO2 = 1.e-10
+my_constants.sigma_alumina = 1.e-12
+my_constants.sigma_air = 1.e-15
+
+my_constants.eps_0 = 8.8541878128e-12
+#my_constants.eps_r_SiO2 = 3.8
+my_constants.eps_r_alumina = 9.8
+my_constants.eps_r_air = 1.0006
+
+my_constants.mu_0 = 1.25663706212e-06
+#my_constants.mu_r_SiO2 = 1.0
+my_constants.mu_r_alumina = 1.0
+my_constants.mu_r_air = 1.0
+###############
+###############
+# waveguide port parameters
+###############
+my_constants.sub_thick = 5e-4
+my_constants.strip_width = 0.97518*sub_thick
+
+my_constants.freq = 10.e9
+
+###############
+# derived quantities and fundamental constants - don't touch these
+###############
+my_constants.pi = 3.14159265358979
+
+# grid spacing
+my_constants.dx = Lx / n_cellx
+my_constants.dy = Ly / n_celly
+my_constants.dz = Lz / n_cellz
+
+my_constants.tiny = 1.e-12
+
+#################################
+#################################
+############ Microstrip (Internal PEC) & Excitation #############
+#################################
+#################################
+warpx.Apply_E_excitation_in_pml_region = 1
+
+warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
+
+warpx.Ex_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny) * (x > -strip_width/2.- tiny) * (x < strip_width/2. + tiny))"
+warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ey_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny) * (x > -strip_width/2.- tiny) * (x < strip_width/2. + tiny))"
+warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ez_excitation_flag_function(x,y,z) = "1* ((x > -strip_width/2.) * (x < strip_width/2.) * (z > 0.) * (z < sub_thick) * (y >= -dy/2.) * (y <= dy/2.))"
+warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
+
+warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
+
+warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -strip_width/2.) * (x < strip_width/2.) * (z > 0.) * (z < sub_thick) * (y >= 0.) * (y <= dy)"
+warpx.By_excitation_flag_function(x,y,z) = "0."
+warpx.Bz_excitation_flag_function(x,y,z) = "0"
+
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50.) * sin(2*pi*freq*t)"
+warpx.By_excitation_grid_function(x,y,z,t) = "0."
+warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
+###############
+# diagnostics
+###############
+
+diagnostics.diags_names = plt
+#diagnostics.diags_names = plt input output
+
+###############
+# full plotfiles
+plt.intervals = 400
+plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
+plt.diag_type = Full
+
+########################## Surface Integral on the Y-Plane #############################

@@ -1,0 +1,351 @@
+################################
+####### GENERAL PARAMETERS ######
+#################################
+max_step = 24000
+
+amr.n_cell = n_cellx n_celly n_cellz
+amr.max_grid_size = max_grid_size
+amr.blocking_factor = blocking_factor
+amr.refine_grid_layout = 1  # if n_MPI > n_grids, the grids will be successively divided in half until n_MPI <= n_grids
+
+# need this here for some reason with blocking_factor = 40
+amr.check_input = 0
+
+geometry.dims = 3
+geometry.prob_lo = -Lx/2. 0. 0.
+geometry.prob_hi =  Lx/2. Ly Lz
+
+amr.max_level = 0
+
+# use pec instead of pml overlaying current source so you don't get a reflection
+boundary.field_lo = pml pml pec
+boundary.field_hi = pml pml pml
+
+#################################
+############ NUMERICS ###########
+#################################
+warpx.verbose = 1
+
+warpx.cfl = 0.9
+
+# vacuum or macroscopic
+algo.em_solver_medium = macroscopic
+
+# laxwendroff or backwardeuler
+algo.macroscopic_sigma_method = laxwendroff
+
+###############
+# geometry
+# each row represents a different part of the circuit
+# 1. air everywhere, then add in alumina
+# 2. alumina at the bottom of the microstrip
+# 2. metal above alumina (aluminum or copper)
+###############
+
+macroscopic.sigma_function(x,y,z) = "sigma_air
++ (sigma_alumina - sigma_air)   * (z >= 0) * (z < h_port)
++ (sigma_metal - sigma_air)  * (x >= -w_port/2) * (x <=w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
+
+macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_air
++ eps_0 * (eps_r_alumina - eps_r_air)  * (z >= 0) * (z < h_port)
++ eps_0 * (eps_r_metal - eps_r_air) * (x >= -w_port/2) * (x <= w_port/2) * (z >= h_port) * (z < h_port + t_strip)"
+
+macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_air
++ mu_0 * (mu_r_alumina - mu_r_air)  * (z >= 0) * (z < h_port)
++ mu_0 * (mu_r_metal - mu_r_air)  * (x >= -w_port/2) * (x <= w_port/2) * (z >= 0) * (z < h_port + t_strip)"
+
+#################################
+############ Microstrip (PEC) #############
+##################################
+#warpx.E_excitation_on_grid_style = "parse_E_excitation_grid_function"
+#
+#warpx.Ex_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+#warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+#
+#warpx.Ey_excitation_flag_function(x,y,z) = (z > h_port-tiny) * (z < h_port+tiny) * (x > -w_port/2.-tiny) * (x < w_port/2.+tiny)
+#warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+##################################
+############ FIELDS #############
+#################################
+
+###############
+# domain size
+# n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
+###############
+my_constants.n_cellx = 60
+my_constants.n_celly = 720
+my_constants.n_cellz = 120
+my_constants.max_grid_size = 60
+my_constants.blocking_factor = 60
+
+my_constants.Lx = 3.e-3
+my_constants.Ly = 36.e-3
+my_constants.Lz = 3.e-3
+
+###############
+# material properties
+###############
+my_constants.sigma_0 = 0.0
+#my_constants.sigma_SiO2 = 1.e-10
+my_constants.sigma_alumina = 1.e-12
+my_constants.sigma_air = 1.e-15
+my_constants.sigma_metal = 3.8e7 #aluminum
+#my_constants.sigma_metal = 5.96e7 #copper
+
+
+my_constants.eps_0 = 8.8541878128e-12
+#my_constants.eps_r_SiO2 = 3.8
+my_constants.eps_r_alumina = 9.8
+my_constants.eps_r_air = 1.0006
+my_constants.eps_r_metal = 1.0
+
+my_constants.mu_0 = 1.25663706212e-06
+#my_constants.mu_r_SiO2 = 1.0
+my_constants.mu_r_alumina = 1.0
+my_constants.mu_r_air = 1.00000037
+my_constants.mu_r_metal = 1.000022 #aluminum
+my_constants.mu_r_metal = 0.999994 #copper
+###############
+# waveguide port parameters
+###############
+my_constants.h_port = 5e-4
+my_constants.w_port = 0.97518*h_port
+my_constants.t_strip = 5e-5
+
+my_constants.freq = 10.e9
+
+###############
+# derived quantities and fundamental constants - don't touch these
+###############
+
+my_constants.pi = 3.14159265358979
+
+# grid spacing
+my_constants.dx = Lx / n_cellx
+my_constants.dy = Ly / n_celly
+my_constants.dz = Lz / n_cellz
+
+my_constants.tiny = 1.e-12
+
+###############
+# excitation
+###############
+
+warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
+
+warpx.Ex_excitation_flag_function(x,y,z) = "0."
+warpx.Ey_excitation_flag_function(x,y,z) = "0."
+warpx.Ez_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= -dy/2.) * (y <= dy/2.)"
+
+warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+#warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t) * (t < (1./freq))"
+warpx.Ez_excitation_grid_function(x,y,z,t) = "sin(2*pi*freq*t)"
+
+warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
+
+warpx.Bx_excitation_flag_function(x,y,z) = "1* (x > -w_port/2.) * (x < w_port/2.) * (z > 0.) * (z < h_port) * (y >= 0.) * (y <= dy)"
+warpx.By_excitation_flag_function(x,y,z) = "0."
+warpx.Bz_excitation_flag_function(x,y,z) = "0."
+
+#warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_SiO2/50.)*(sin(2*pi*freq*t)) * (t < (1./freq))"
+warpx.Bx_excitation_grid_function(x,y,z,t) = "(mu_0*mu_r_alumina/50)*(sin(2*pi*freq*t))"
+warpx.By_excitation_grid_function(x,y,z,t) = "0."
+warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
+
+###############
+# diagnostics
+###############
+
+diagnostics.diags_names = plt
+#diagnostics.diags_names = plt input output
+
+###############
+# full plotfiles
+plt.intervals = 1000
+# plt.fields_to_plot = Ez Bx
+plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
+#plt.fields_to_plot = Ez epsilon sigma mu
+plt.diag_type = Full
+
+########################## Surface Integral on the Y-Plane #############################
+my_constants.eps=1.e-9
+
+warpx.reduced_diags_names = plane0 plane1 plane2 plane3 plane4 plane5 plane6 plane7 plane8 plane9 plane10 plane11 plane12 plane13 plane14 plane15 plane16 plane17 plane18 EvolumeInt
+
+#Int_yInputPlane2.type = RawEFieldReduction
+#Int_yInputPlane2.reduction_type = integral
+#Int_yInputPlane2.integration_type = surface
+#Int_yInputPlane2.intervals = 1
+#Int_yInputPlane2.surface_normal = Y
+#
+#Int_yInputPlane3.type = RawEFieldReduction
+#Int_yInputPlane3.reduction_type = integral
+#Int_yInputPlane3.integration_type = surface
+#Int_yInputPlane3.intervals = 1
+#Int_yInputPlane3.surface_normal = Y
+
+#Input Ports
+plane0.type = RawEFieldReduction
+plane0.reduction_type = integral
+plane0.integration_type = surface
+plane0.intervals = 1
+plane0.surface_normal = Y
+my_constants.plane0=dy #Nodes aligned with Y
+
+my_constants.plane1=3*dy #Nodes aligned with Y
+plane1.type = RawEFieldReduction
+plane1.reduction_type = integral
+plane1.integration_type = surface
+plane1.intervals = 1
+plane1.surface_normal = Y
+my_constants.plane1=3*dy #Nodes aligned with Y
+
+plane2.type = RawEFieldReduction
+plane2.reduction_type = integral
+plane2.integration_type = surface
+plane2.intervals = 1
+plane2.surface_normal = Y
+my_constants.plane2=6*dy #Nodes aligned with Y
+
+plane3.type = RawEFieldReduction
+plane3.reduction_type = integral
+plane3.integration_type = surface
+plane3.intervals = 1
+plane3.surface_normal = Y
+my_constants.plane3=9*dy #Nodes aligned with Y
+
+plane4.type = RawEFieldReduction
+plane4.reduction_type = integral
+plane4.integration_type = surface
+plane4.intervals = 1
+plane4.surface_normal = Y
+my_constants.plane4=12*dy #Nodes aligned with Y
+
+plane5.type = RawEFieldReduction
+plane5.reduction_type = integral
+plane5.integration_type = surface
+plane5.intervals = 1
+plane5.surface_normal = Y
+my_constants.plane5=15*dy #Nodes aligned with Y
+
+plane6.type = RawEFieldReduction
+plane6.reduction_type = integral
+plane6.integration_type = surface
+plane6.intervals = 1
+plane6.surface_normal = Y
+my_constants.plane6=18*dy #Nodes aligned with Y
+
+plane7.type = RawEFieldReduction
+plane7.reduction_type = integral
+plane7.integration_type = surface
+plane7.intervals = 1
+plane7.surface_normal = Y
+my_constants.plane7=21*dy #Nodes aligned with Y
+
+plane8.type = RawEFieldReduction
+plane8.reduction_type = integral
+plane8.integration_type = surface
+plane8.intervals = 1
+plane8.surface_normal = Y
+my_constants.plane8=24*dy #Nodes aligned with Y
+
+plane9.type = RawEFieldReduction
+plane9.reduction_type = integral
+plane9.integration_type = surface
+plane9.intervals = 1
+plane9.surface_normal = Y
+my_constants.plane9=27*dy #Nodes aligned with Y
+
+plane10.type = RawEFieldReduction
+plane10.reduction_type = integral
+plane10.integration_type = surface
+plane10.intervals = 1
+plane10.surface_normal = Y
+my_constants.plane10=30*dy #Nodes aligned with Y
+
+plane11.type = RawEFieldReduction
+plane11.reduction_type = integral
+plane11.integration_type = surface
+plane11.intervals = 1
+plane11.surface_normal = Y
+my_constants.plane11=Ly/8. #Nodes aligned with Y
+
+plane12.type = RawEFieldReduction
+plane12.reduction_type = integral
+plane12.integration_type = surface
+plane12.intervals = 1
+plane12.surface_normal = Y
+my_constants.plane12=Ly/4. #Nodes aligned with Y
+
+plane13.type = RawEFieldReduction
+plane13.reduction_type = integral
+plane13.integration_type = surface
+plane13.intervals = 1
+plane13.surface_normal = Y
+my_constants.plane13 = Ly*3/8. #Nodes aligned with Y
+
+plane14.type = RawEFieldReduction
+plane14.reduction_type = integral
+plane14.integration_type = surface
+plane14.intervals = 1
+plane14.surface_normal = Y
+my_constants.plane14 = Ly/2. #Nodes aligned with Y
+
+plane15.type = RawEFieldReduction
+plane15.reduction_type = integral
+plane15.integration_type = surface
+plane15.intervals = 1
+plane15.surface_normal = Y
+my_constants.plane15 = Ly*5/8. #Nodes aligned with Y
+
+plane16.type = RawEFieldReduction
+plane16.reduction_type = integral
+plane16.integration_type = surface
+plane16.intervals = 1
+plane16.surface_normal = Y
+my_constants.plane16 = Ly*3/4. #Nodes aligned with Y
+
+plane17.type = RawEFieldReduction
+plane17.reduction_type = integral
+plane17.integration_type = surface
+plane17.intervals = 1
+plane17.surface_normal = Y
+my_constants.plane17 = Ly*7/8. #Nodes aligned with Y
+
+plane18.type = RawEFieldReduction
+plane18.reduction_type = integral
+plane18.integration_type = surface
+plane18.intervals = 1
+plane18.surface_normal = Y
+my_constants.plane18 = Ly-2*dy #Nodes aligned with Y
+
+# Int_yOutputPlane2.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * (z > 0.) * (z <= h_port) * 1"
+# Int_yOutputPlane3.reduced_function(x,y,z) = " (y >= YOutputPlaneLoc - dy/2.) * (y <= YOutputPlaneLoc) * 1"
+
+plane0.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane0 - dy/2.) * (y <= plane0) * (z > 0.) * (z <= h_port) * 1"
+plane1.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane1 - dy/2.) * (y <= plane1) * (z > 0.) * (z <= h_port) * 1"
+plane2.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane2 - dy/2.) * (y <= plane2) * (z > 0.) * (z <= h_port) * 1"
+plane3.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane3 - dy/2.) * (y <= plane3) * (z > 0.) * (z <= h_port) * 1"
+plane4.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane4 - dy/2.) * (y <= plane4) * (z > 0.) * (z <= h_port) * 1"
+plane5.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane5 - dy/2.) * (y <= plane5) * (z > 0.) * (z <= h_port) * 1"
+plane6.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane6 - dy/2.) * (y <= plane6) * (z > 0.) * (z <= h_port) * 1"
+plane7.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane7 - dy/2.) * (y <= plane7) * (z > 0.) * (z <= h_port) * 1"
+plane8.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane8 - dy/2.) * (y <= plane8) * (z > 0.) * (z <= h_port) * 1"
+plane9.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane9 - dy/2.) * (y <= plane9) * (z > 0.) * (z <= h_port) * 1"
+plane10.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane10 - dy/2.) * (y <= plane10) * (z > 0.) * (z <= h_port) * 1"
+plane11.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane11 - dy/2.) * (y <= plane11) * (z > 0.) * (z <= h_port) * 1"
+plane12.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane12 - dy/2.) * (y <= plane12) * (z > 0.) * (z <= h_port) * 1"
+plane13.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane13 - dy/2.) * (y <= plane13) * (z > 0.) * (z <= h_port) * 1"
+plane14.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane14 - dy/2.) * (y <= plane14) * (z > 0.) * (z <= h_port) * 1"
+plane15.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane15 - dy/2.) * (y < plane15 + dy/2.) * (z > 0.) * (z <= h_port) * 1"
+plane16.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane16 - dy/2.) * (y <= plane16) * (z > 0.) * (z <= h_port) * 1"
+plane17.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane17 - dy/2.) * (y <= plane17) * (z > 0.) * (z <= h_port) * 1"
+plane18.reduced_function(x,y,z) = " (x >= -w_port/2.) * (x <= w_port/2.) * (y >= plane18 - dy/2.) * (y < plane18 + dy/2.) * (z > 0.) * (z <= h_port) * 1"
+
+EvolumeInt.type = FieldReduction
+EvolumeInt.intervals = 1
+EvolumeInt.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz) =  "if(z < h_port, 0.5*(Ex**2 + Ey**2 + Ez**2)*eps_0*eps_r_alumina, 0.5*(Ex**2 + Ey**2 + Ez**2)*eps_0*eps_r_air)"
+EvolumeInt.reduction_type = Integral
+###############
+
