@@ -92,7 +92,6 @@ my_constants.mu_r_air = 1.0
 # waveguide port parameters
 ###############
 my_constants.sub_thick = 5e-4
-my_constants.strip_width = 0.97518*sub_thick
 
 my_constants.freq = 10.e9
 
@@ -117,10 +116,10 @@ warpx.Apply_E_excitation_in_pml_region = 1
 
 warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
 
-warpx.Ex_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny) * (x > -Lx/2. - tiny) * (x < Lx/2. + tiny))"
+warpx.Ex_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny))"
 warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
 
-warpx.Ey_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny) * (x > -Lx/2. - tiny) * (x < Lx/2. + tiny))"
+warpx.Ey_excitation_flag_function(x,y,z) = "1* ((z > sub_thick-tiny) * (z < sub_thick+tiny))"
 warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
 
 warpx.Ez_excitation_flag_function(x,y,z) = "1* ((x > -Lx/2.) * (x < Lx/2.) * (z > 0.) * (z < sub_thick) * (y >= -dy/2.) * (y <= dy/2.))"
