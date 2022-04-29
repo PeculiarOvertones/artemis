@@ -158,7 +158,7 @@ public:
 #endif
                     // We want to weight interior faces by 1
                     // and faces that are on the faces of the box by 0.5
-            // Faces for Bx computation can lie on xmin and xmax box faces.
+                    // Faces for Bx computation can lie on xmin and xmax box faces.
                     amrex::Real weight = 1.0;
                     if (i == lx[0] || i == hx[0]) {
                         weight *= 0.5;
@@ -183,7 +183,7 @@ public:
 #endif
                     // We want to weight interior faces by 1
                     // and faces that are on the faces of the box by 0.5
-            // Faces for By computation can lie on ymin and ymax box faces.
+                    // Faces for By computation can lie on ymin and ymax box faces.
                     amrex::Real weight = 1.0;
                     if (j == ly[1] || j == hy[1]) {
                         weight *= 0.5;
@@ -208,7 +208,7 @@ public:
 #endif
                     // We want to weight interior faces by 1
                     // and faces that are on the faces of the box by 0.5
-            // Faces for Bz computation can lie on zmin and zmax box faces.
+                    // Faces for Bz computation can lie on zmin and zmax box faces.
                     amrex::Real weight = 1.0;
                     if (k == lz[2] || k == hz[2]) {
                         weight *= 0.5;
