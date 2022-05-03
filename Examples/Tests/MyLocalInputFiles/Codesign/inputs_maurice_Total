@@ -1,7 +1,7 @@
 ################################
 ####### GENERAL PARAMETERS ######
 #################################
-max_step = 10000
+max_step = 30000
 
 amr.n_cell = n_cellx n_celly n_cellz
 amr.max_grid_size = max_grid_size
@@ -77,7 +77,7 @@ macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_SiO2
 my_constants.n_cellx = 200
 my_constants.n_celly = 120
 my_constants.n_cellz = 800
-my_constants.max_grid_size = 200
+my_constants.max_grid_size = 100
 my_constants.blocking_factor = 100
 
 my_constants.Lx = 4.e-6
