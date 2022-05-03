@@ -1,0 +1,665 @@
+################################
+####### GENERAL PARAMETERS ######
+#################################
+max_step = 4000
+
+amr.n_cell = n_cellx n_celly n_cellz
+amr.max_grid_size = max_grid_size
+amr.blocking_factor = blocking_factor
+amr.refine_grid_layout = 1  # if n_MPI > n_grids, the grids will be successively divided in half until n_MPI <= n_grids
+
+# need this here for some reason with blocking_factor = 40
+amr.check_input = 0
+
+geometry.dims = 3
+geometry.prob_lo = -Lx/2. 0. 0.
+geometry.prob_hi =  Lx/2. Ly Lz
+
+amr.max_level = 0
+
+# use pec instead of pml overlaying current source so you don't get a reflection
+boundary.field_lo = pml pml pec
+boundary.field_hi = pml pml pml
+
+#################################
+############ NUMERICS ###########
+#################################
+warpx.verbose = 1
+
+warpx.cfl = 0.9
+
+# vacuum or macroscopic
+algo.em_solver_medium = macroscopic
+
+# laxwendroff or backwardeuler
+algo.macroscopic_sigma_method = laxwendroff
+
+###############
+# geometry
+# each row represents a different part of the circuit
+# 1. SiO2 everywhere, then add in palladium and aluminum
+# 2. first segment of pd electrode
+# 3. upward portion of pd electrode
+# 4. last segment of pd electrode
+# 5. aluminum block
+# 6. gate oxide block
+###############
+
+macroscopic.sigma_function(x,y,z) = "sigma_SiO2
++ (sigma_Pd - sigma_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2)  * (z >= d_Pd) * (z <= d_Pd + h_Pd)"
+
+macroscopic.epsilon_function(x,y,z) = "eps_0 * eps_r_SiO2
++ eps_0 * (eps_r_Pd - eps_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (z >= d_Pd) * (z <= d_Pd + h_Pd)"
+
+macroscopic.mu_function(x,y,z) = "mu_0 * mu_r_SiO2
++ mu_0 * (mu_r_Pd - mu_r_SiO2)   * (x >= -w_Pd/2) * (x <= w_Pd/2) * (z >= d_Pd) * (z <= d_Pd + h_Pd)"
+
+#################################
+############ FIELDS #############
+#################################
+
+###############
+# domain size
+# n_cellx/y/z and Lx/y/z are needed to calculate dx/dy/dz
+###############
+my_constants.n_cellx = 200
+my_constants.n_celly = 120
+my_constants.n_cellz = 800
+my_constants.max_grid_size = 200
+my_constants.blocking_factor = 100
+
+my_constants.Lx = 4.e-6
+my_constants.Ly = 6.e-6
+my_constants.Lz = 4.e-6
+
+###############
+# grid spacing
+###############
+my_constants.dx = Lx / n_cellx
+my_constants.dy = Ly / n_celly
+my_constants.dz = Lz / n_cellz
+
+###############
+# material properties
+###############
+
+my_constants.sigma_0 = 0.0
+my_constants.sigma_Pd = 1.e7
+my_constants.sigma_Al = 3.8e7
+my_constants.sigma_SiO2 = 1.e-10
+my_constants.sigma_gate = 1.e-10
+
+my_constants.eps_0 = 8.8541878128e-12
+my_constants.eps_r_Pd = 13.
+my_constants.eps_r_Al = 1.7
+my_constants.eps_r_SiO2 = 3.8
+my_constants.eps_r_gate = 3.8
+
+my_constants.mu_0 = 1.25663706212e-06
+my_constants.mu_r_Pd = 1.0008
+my_constants.mu_r_Al = 1.000022
+my_constants.mu_r_SiO2 = 1.0
+my_constants.mu_r_gate = 1.0
+
+###############
+# silicon and palladium cross section
+###############
+
+my_constants.h_Pd = 100.e-9
+my_constants.w_Pd = 2.e-6
+my_constants.d_Pd = 2.e-6
+my_constants.l_Pd = 3.e-6
+
+my_constants.th_gate = 20.e-9
+
+my_constants.l_Al = 1.5e-6
+
+###############
+# derived quantities and fundamental constants
+###############
+
+my_constants.tiny = 1.e-12
+my_constants.pi = 3.14159265358979
+
+###############
+# Gaussian pulse parameters
+###############
+my_constants.dt = 1.4494163646596505e-17 #Computed from CFL
+my_constants.TP = 100*dt
+my_constants.t0 = 5.87*TP
+
+###############
+# excitation
+###############
+
+warpx.E_excitation_on_grid_style = parse_E_excitation_grid_function
+
+warpx.Ex_excitation_flag_function(x,y,z) = "0."
+warpx.Ex_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ey_excitation_flag_function(x,y,z) = "0."
+warpx.Ey_excitation_grid_function(x,y,z,t) = "0."
+
+warpx.Ez_excitation_flag_function(x,y,z) = "2* ((x > -w_Pd/2.) * (x < w_Pd/2.) * (z > 0.) * (z < d_Pd) * (y >= -dy/2.) * (y <= dy/2.))"
+warpx.Ez_excitation_grid_function(x,y,z,t) = "exp(-(t-t0)**2/(TP**2))"
+
+warpx.B_excitation_on_grid_style = parse_B_excitation_grid_function
+
+warpx.Bx_excitation_flag_function(x,y,z) = "0."
+warpx.By_excitation_flag_function(x,y,z) = "0."
+warpx.Bz_excitation_flag_function(x,y,z) = "0."
+
+warpx.Bx_excitation_grid_function(x,y,z,t) = "0."
+warpx.By_excitation_grid_function(x,y,z,t) = "0."
+warpx.Bz_excitation_grid_function(x,y,z,t) = "0."
+
+###############
+# diagnostics
+###############
+diagnostics.diags_names = plt
+plt.intervals = 100
+#plt.fields_to_plot = Ez Bx
+#plt.fields_to_plot = Ex Ey Ez Bx By Bz epsilon sigma mu
+plt.fields_to_plot = Ex Ey Ez Bx By Bz 
+plt.diag_type = Full
+
+###############
+# reduced diagnostics
+###############
+warpx.reduced_diags_names = ESurf_L1S1 ESurf_L2S1 ESurf_L3S1 ESurf_L4S1 ESurf_L5S1 ESurf_L6S1 ESurf_L7S1 ESurf_L8S1 BSurf_L1S1 BSurf_L1S2 BSurf_L1S3 BSurf_L1S4 BSurf_L2S1 BSurf_L2S2 BSurf_L2S3 BSurf_L2S4 BSurf_L3S1 BSurf_L3S2 BSurf_L3S3 BSurf_L3S4 BSurf_L4S1 BSurf_L4S2 BSurf_L4S3 BSurf_L4S4 BSurf_L5S1 BSurf_L5S2 BSurf_L5S3 BSurf_L5S4 BSurf_L6S1 BSurf_L6S2 BSurf_L6S3 BSurf_L6S4 BSurf_L7S1 BSurf_L7S2 BSurf_L7S3 BSurf_L7S4 BSurf_L8S1 BSurf_L8S2 BSurf_L8S3 BSurf_L8S4 EVolume1 BVolume1 
+
+
+### Defining surfaces for E-field surface integrals to obtain voltages ###
+
+
+# E-Surface ESurf_L1S1
+
+
+ESurf_L1S1.type = RawEFieldReduction
+ESurf_L1S1.reduction_type = integral
+ESurf_L1S1.integration_type = surface
+ESurf_L1S1.intervals = 1
+ESurf_L1S1.surface_normal = y
+my_constants.ESurf_L1S1_Loc = dy
+ESurf_L1S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L1S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L1S1_Loc - dy/2. - tiny ) * (y < ESurf_L1S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L2S1
+
+
+ESurf_L2S1.type = RawEFieldReduction
+ESurf_L2S1.reduction_type = integral
+ESurf_L2S1.integration_type = surface
+ESurf_L2S1.intervals = 1
+ESurf_L2S1.surface_normal = y
+my_constants.ESurf_L2S1_Loc = 5e-07
+ESurf_L2S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L2S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L2S1_Loc - dy/2. - tiny ) * (y < ESurf_L2S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L3S1
+
+
+ESurf_L3S1.type = RawEFieldReduction
+ESurf_L3S1.reduction_type = integral
+ESurf_L3S1.integration_type = surface
+ESurf_L3S1.intervals = 1
+ESurf_L3S1.surface_normal = y
+my_constants.ESurf_L3S1_Loc = 1e-06
+ESurf_L3S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L3S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L3S1_Loc - dy/2. - tiny ) * (y < ESurf_L3S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L4S1
+
+
+ESurf_L4S1.type = RawEFieldReduction
+ESurf_L4S1.reduction_type = integral
+ESurf_L4S1.integration_type = surface
+ESurf_L4S1.intervals = 1
+ESurf_L4S1.surface_normal = y
+my_constants.ESurf_L4S1_Loc = 1.5e-06
+ESurf_L4S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L4S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L4S1_Loc - dy/2. - tiny ) * (y < ESurf_L4S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L5S1
+
+
+ESurf_L5S1.type = RawEFieldReduction
+ESurf_L5S1.reduction_type = integral
+ESurf_L5S1.integration_type = surface
+ESurf_L5S1.intervals = 1
+ESurf_L5S1.surface_normal = y
+my_constants.ESurf_L5S1_Loc = 2e-06
+ESurf_L5S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L5S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L5S1_Loc - dy/2. - tiny ) * (y < ESurf_L5S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L6S1
+
+
+ESurf_L6S1.type = RawEFieldReduction
+ESurf_L6S1.reduction_type = integral
+ESurf_L6S1.integration_type = surface
+ESurf_L6S1.intervals = 1
+ESurf_L6S1.surface_normal = y
+my_constants.ESurf_L6S1_Loc = 5e-06
+ESurf_L6S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L6S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L6S1_Loc - dy/2. - tiny ) * (y < ESurf_L6S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L7S1
+
+
+ESurf_L7S1.type = RawEFieldReduction
+ESurf_L7S1.reduction_type = integral
+ESurf_L7S1.integration_type = surface
+ESurf_L7S1.intervals = 1
+ESurf_L7S1.surface_normal = y
+my_constants.ESurf_L7S1_Loc = 5.5e-06
+ESurf_L7S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L7S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L7S1_Loc - dy/2. - tiny ) * (y < ESurf_L7S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+# E-Surface ESurf_L8S1
+
+
+ESurf_L8S1.type = RawEFieldReduction
+ESurf_L8S1.reduction_type = integral
+ESurf_L8S1.integration_type = surface
+ESurf_L8S1.intervals = 1
+ESurf_L8S1.surface_normal = y
+my_constants.ESurf_L8S1_Loc = Ly-2*dy
+ESurf_L8S1.scaling_factor = 500000.0 500000.0 500000.0
+ESurf_L8S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - tiny) * (x < w_Pd/2. + tiny) * (y > ESurf_L8S1_Loc - dy/2. - tiny ) * (y < ESurf_L8S1_Loc + tiny) * (z > 0.) * ( z < d_Pd + tiny) *1"
+
+
+### Defining surfaces for B-Field contour integrals to obtain current ###
+
+
+# B-Surface BSurf_L1S1
+
+
+BSurf_L1S1.type = RawBFieldReduction
+BSurf_L1S1.reduction_type = integral
+BSurf_L1S1.integration_type = surface
+BSurf_L1S1.intervals = 1
+BSurf_L1S1.surface_normal = y
+my_constants.BSurf_L1S1_Loc = dy
+BSurf_L1S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L1S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L1S1_Loc - dy/2. - tiny ) * (y < BSurf_L1S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L1S2
+
+
+BSurf_L1S2.type = RawBFieldReduction
+BSurf_L1S2.reduction_type = integral
+BSurf_L1S2.integration_type = surface
+BSurf_L1S2.intervals = 1
+BSurf_L1S2.surface_normal = y
+my_constants.BSurf_L1S2_Loc = dy
+BSurf_L1S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L1S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L1S2_Loc - dy/2. - tiny ) * (y < BSurf_L1S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L1S3
+
+
+BSurf_L1S3.type = RawBFieldReduction
+BSurf_L1S3.reduction_type = integral
+BSurf_L1S3.integration_type = surface
+BSurf_L1S3.intervals = 1
+BSurf_L1S3.surface_normal = y
+my_constants.BSurf_L1S3_Loc = dy
+BSurf_L1S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L1S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L1S3_Loc - dy/2. - tiny ) * (y < BSurf_L1S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L1S4
+
+
+BSurf_L1S4.type = RawBFieldReduction
+BSurf_L1S4.reduction_type = integral
+BSurf_L1S4.integration_type = surface
+BSurf_L1S4.intervals = 1
+BSurf_L1S4.surface_normal = y
+my_constants.BSurf_L1S4_Loc = dy
+BSurf_L1S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L1S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L1S4_Loc - dy/2. - tiny ) * (y < BSurf_L1S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L2S1
+
+
+BSurf_L2S1.type = RawBFieldReduction
+BSurf_L2S1.reduction_type = integral
+BSurf_L2S1.integration_type = surface
+BSurf_L2S1.intervals = 1
+BSurf_L2S1.surface_normal = y
+my_constants.BSurf_L2S1_Loc = 5e-07
+BSurf_L2S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L2S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L2S1_Loc - dy/2. - tiny ) * (y < BSurf_L2S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L2S2
+
+
+BSurf_L2S2.type = RawBFieldReduction
+BSurf_L2S2.reduction_type = integral
+BSurf_L2S2.integration_type = surface
+BSurf_L2S2.intervals = 1
+BSurf_L2S2.surface_normal = y
+my_constants.BSurf_L2S2_Loc = 5e-07
+BSurf_L2S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L2S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L2S2_Loc - dy/2. - tiny ) * (y < BSurf_L2S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L2S3
+
+
+BSurf_L2S3.type = RawBFieldReduction
+BSurf_L2S3.reduction_type = integral
+BSurf_L2S3.integration_type = surface
+BSurf_L2S3.intervals = 1
+BSurf_L2S3.surface_normal = y
+my_constants.BSurf_L2S3_Loc = 5e-07
+BSurf_L2S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L2S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L2S3_Loc - dy/2. - tiny ) * (y < BSurf_L2S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L2S4
+
+
+BSurf_L2S4.type = RawBFieldReduction
+BSurf_L2S4.reduction_type = integral
+BSurf_L2S4.integration_type = surface
+BSurf_L2S4.intervals = 1
+BSurf_L2S4.surface_normal = y
+my_constants.BSurf_L2S4_Loc = 5e-07
+BSurf_L2S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L2S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L2S4_Loc - dy/2. - tiny ) * (y < BSurf_L2S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L3S1
+
+
+BSurf_L3S1.type = RawBFieldReduction
+BSurf_L3S1.reduction_type = integral
+BSurf_L3S1.integration_type = surface
+BSurf_L3S1.intervals = 1
+BSurf_L3S1.surface_normal = y
+my_constants.BSurf_L3S1_Loc = 1e-06
+BSurf_L3S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L3S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L3S1_Loc - dy/2. - tiny ) * (y < BSurf_L3S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L3S2
+
+
+BSurf_L3S2.type = RawBFieldReduction
+BSurf_L3S2.reduction_type = integral
+BSurf_L3S2.integration_type = surface
+BSurf_L3S2.intervals = 1
+BSurf_L3S2.surface_normal = y
+my_constants.BSurf_L3S2_Loc = 1e-06
+BSurf_L3S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L3S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L3S2_Loc - dy/2. - tiny ) * (y < BSurf_L3S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L3S3
+
+
+BSurf_L3S3.type = RawBFieldReduction
+BSurf_L3S3.reduction_type = integral
+BSurf_L3S3.integration_type = surface
+BSurf_L3S3.intervals = 1
+BSurf_L3S3.surface_normal = y
+my_constants.BSurf_L3S3_Loc = 1e-06
+BSurf_L3S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L3S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L3S3_Loc - dy/2. - tiny ) * (y < BSurf_L3S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L3S4
+
+
+BSurf_L3S4.type = RawBFieldReduction
+BSurf_L3S4.reduction_type = integral
+BSurf_L3S4.integration_type = surface
+BSurf_L3S4.intervals = 1
+BSurf_L3S4.surface_normal = y
+my_constants.BSurf_L3S4_Loc = 1e-06
+BSurf_L3S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L3S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L3S4_Loc - dy/2. - tiny ) * (y < BSurf_L3S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L4S1
+
+
+BSurf_L4S1.type = RawBFieldReduction
+BSurf_L4S1.reduction_type = integral
+BSurf_L4S1.integration_type = surface
+BSurf_L4S1.intervals = 1
+BSurf_L4S1.surface_normal = y
+my_constants.BSurf_L4S1_Loc = 1.5e-06
+BSurf_L4S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L4S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L4S1_Loc - dy/2. - tiny ) * (y < BSurf_L4S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L4S2
+
+
+BSurf_L4S2.type = RawBFieldReduction
+BSurf_L4S2.reduction_type = integral
+BSurf_L4S2.integration_type = surface
+BSurf_L4S2.intervals = 1
+BSurf_L4S2.surface_normal = y
+my_constants.BSurf_L4S2_Loc = 1.5e-06
+BSurf_L4S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L4S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L4S2_Loc - dy/2. - tiny ) * (y < BSurf_L4S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L4S3
+
+
+BSurf_L4S3.type = RawBFieldReduction
+BSurf_L4S3.reduction_type = integral
+BSurf_L4S3.integration_type = surface
+BSurf_L4S3.intervals = 1
+BSurf_L4S3.surface_normal = y
+my_constants.BSurf_L4S3_Loc = 1.5e-06
+BSurf_L4S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L4S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L4S3_Loc - dy/2. - tiny ) * (y < BSurf_L4S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L4S4
+
+
+BSurf_L4S4.type = RawBFieldReduction
+BSurf_L4S4.reduction_type = integral
+BSurf_L4S4.integration_type = surface
+BSurf_L4S4.intervals = 1
+BSurf_L4S4.surface_normal = y
+my_constants.BSurf_L4S4_Loc = 1.5e-06
+BSurf_L4S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L4S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L4S4_Loc - dy/2. - tiny ) * (y < BSurf_L4S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L5S1
+
+
+BSurf_L5S1.type = RawBFieldReduction
+BSurf_L5S1.reduction_type = integral
+BSurf_L5S1.integration_type = surface
+BSurf_L5S1.intervals = 1
+BSurf_L5S1.surface_normal = y
+my_constants.BSurf_L5S1_Loc = 2e-06
+BSurf_L5S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L5S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L5S1_Loc - dy/2. - tiny ) * (y < BSurf_L5S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L5S2
+
+
+BSurf_L5S2.type = RawBFieldReduction
+BSurf_L5S2.reduction_type = integral
+BSurf_L5S2.integration_type = surface
+BSurf_L5S2.intervals = 1
+BSurf_L5S2.surface_normal = y
+my_constants.BSurf_L5S2_Loc = 2e-06
+BSurf_L5S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L5S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L5S2_Loc - dy/2. - tiny ) * (y < BSurf_L5S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L5S3
+
+
+BSurf_L5S3.type = RawBFieldReduction
+BSurf_L5S3.reduction_type = integral
+BSurf_L5S3.integration_type = surface
+BSurf_L5S3.intervals = 1
+BSurf_L5S3.surface_normal = y
+my_constants.BSurf_L5S3_Loc = 2e-06
+BSurf_L5S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L5S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L5S3_Loc - dy/2. - tiny ) * (y < BSurf_L5S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L5S4
+
+
+BSurf_L5S4.type = RawBFieldReduction
+BSurf_L5S4.reduction_type = integral
+BSurf_L5S4.integration_type = surface
+BSurf_L5S4.intervals = 1
+BSurf_L5S4.surface_normal = y
+my_constants.BSurf_L5S4_Loc = 2e-06
+BSurf_L5S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L5S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L5S4_Loc - dy/2. - tiny ) * (y < BSurf_L5S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L6S1
+
+
+BSurf_L6S1.type = RawBFieldReduction
+BSurf_L6S1.reduction_type = integral
+BSurf_L6S1.integration_type = surface
+BSurf_L6S1.intervals = 1
+BSurf_L6S1.surface_normal = y
+my_constants.BSurf_L6S1_Loc = 5e-06
+BSurf_L6S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L6S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L6S1_Loc - dy/2. - tiny ) * (y < BSurf_L6S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L6S2
+
+
+BSurf_L6S2.type = RawBFieldReduction
+BSurf_L6S2.reduction_type = integral
+BSurf_L6S2.integration_type = surface
+BSurf_L6S2.intervals = 1
+BSurf_L6S2.surface_normal = y
+my_constants.BSurf_L6S2_Loc = 5e-06
+BSurf_L6S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L6S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L6S2_Loc - dy/2. - tiny ) * (y < BSurf_L6S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L6S3
+
+
+BSurf_L6S3.type = RawBFieldReduction
+BSurf_L6S3.reduction_type = integral
+BSurf_L6S3.integration_type = surface
+BSurf_L6S3.intervals = 1
+BSurf_L6S3.surface_normal = y
+my_constants.BSurf_L6S3_Loc = 5e-06
+BSurf_L6S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L6S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L6S3_Loc - dy/2. - tiny ) * (y < BSurf_L6S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L6S4
+
+
+BSurf_L6S4.type = RawBFieldReduction
+BSurf_L6S4.reduction_type = integral
+BSurf_L6S4.integration_type = surface
+BSurf_L6S4.intervals = 1
+BSurf_L6S4.surface_normal = y
+my_constants.BSurf_L6S4_Loc = 5e-06
+BSurf_L6S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L6S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L6S4_Loc - dy/2. - tiny ) * (y < BSurf_L6S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L7S1
+
+
+BSurf_L7S1.type = RawBFieldReduction
+BSurf_L7S1.reduction_type = integral
+BSurf_L7S1.integration_type = surface
+BSurf_L7S1.intervals = 1
+BSurf_L7S1.surface_normal = y
+my_constants.BSurf_L7S1_Loc = 5.5e-06
+BSurf_L7S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L7S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L7S1_Loc - dy/2. - tiny ) * (y < BSurf_L7S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L7S2
+
+
+BSurf_L7S2.type = RawBFieldReduction
+BSurf_L7S2.reduction_type = integral
+BSurf_L7S2.integration_type = surface
+BSurf_L7S2.intervals = 1
+BSurf_L7S2.surface_normal = y
+my_constants.BSurf_L7S2_Loc = 5.5e-06
+BSurf_L7S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L7S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L7S2_Loc - dy/2. - tiny ) * (y < BSurf_L7S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L7S3
+
+
+BSurf_L7S3.type = RawBFieldReduction
+BSurf_L7S3.reduction_type = integral
+BSurf_L7S3.integration_type = surface
+BSurf_L7S3.intervals = 1
+BSurf_L7S3.surface_normal = y
+my_constants.BSurf_L7S3_Loc = 5.5e-06
+BSurf_L7S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L7S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L7S3_Loc - dy/2. - tiny ) * (y < BSurf_L7S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L7S4
+
+
+BSurf_L7S4.type = RawBFieldReduction
+BSurf_L7S4.reduction_type = integral
+BSurf_L7S4.integration_type = surface
+BSurf_L7S4.intervals = 1
+BSurf_L7S4.surface_normal = y
+my_constants.BSurf_L7S4_Loc = 5.5e-06
+BSurf_L7S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L7S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L7S4_Loc - dy/2. - tiny ) * (y < BSurf_L7S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+# B-Surface BSurf_L8S1
+
+
+BSurf_L8S1.type = RawBFieldReduction
+BSurf_L8S1.reduction_type = integral
+BSurf_L8S1.integration_type = surface
+BSurf_L8S1.intervals = 1
+BSurf_L8S1.surface_normal = y
+my_constants.BSurf_L8S1_Loc = Ly-2*dy
+BSurf_L8S1.scaling_factor = -795774.715 795774.715 795774.715
+BSurf_L8S1.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L8S1_Loc - dy/2. - tiny ) * (y < BSurf_L8S1_Loc + tiny) * (z > d_Pd - dz - tiny) * ( z < d_Pd) *1"
+# B-Surface BSurf_L8S2
+
+
+BSurf_L8S2.type = RawBFieldReduction
+BSurf_L8S2.reduction_type = integral
+BSurf_L8S2.integration_type = surface
+BSurf_L8S2.intervals = 1
+BSurf_L8S2.surface_normal = y
+my_constants.BSurf_L8S2_Loc = Ly-2*dy
+BSurf_L8S2.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L8S2.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < -w_Pd/2.-tiny) * (y > BSurf_L8S2_Loc - dy/2. - tiny ) * (y < BSurf_L8S2_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+# B-Surface BSurf_L8S3
+
+
+BSurf_L8S3.type = RawBFieldReduction
+BSurf_L8S3.reduction_type = integral
+BSurf_L8S3.integration_type = surface
+BSurf_L8S3.intervals = 1
+BSurf_L8S3.surface_normal = y
+my_constants.BSurf_L8S3_Loc = Ly-2*dy
+BSurf_L8S3.scaling_factor =  795774.715 795774.715 795774.715
+BSurf_L8S3.reduced_function(x,y,z) = " (x > -w_Pd/2. - dx - tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L8S3_Loc - dy/2. - tiny ) * (y < BSurf_L8S3_Loc + tiny) * (z > d_Pd) * ( z < d_Pd + dz + tiny) *1"
+# B-Surface BSurf_L8S4
+
+
+BSurf_L8S4.type = RawBFieldReduction
+BSurf_L8S4.reduction_type = integral
+BSurf_L8S4.integration_type = surface
+BSurf_L8S4.intervals = 1
+BSurf_L8S4.surface_normal = y
+my_constants.BSurf_L8S4_Loc = Ly-2*dy
+BSurf_L8S4.scaling_factor =  795774.715 795774.715 -795774.715
+BSurf_L8S4.reduced_function(x,y,z) = " (x >  w_Pd/2. + tiny) * (x < w_Pd/2. + dx + tiny) * (y > BSurf_L8S4_Loc - dy/2. - tiny ) * (y < BSurf_L8S4_Loc + tiny) * (z > d_Pd - dz/2.-tiny) * ( z < d_Pd + dz/2.+tiny) *1"
+
+
+### Defining volumes for E-Field volume integrals to obtain stored magnetic energy ###
+
+
+EVolume1.type = FieldReduction
+EVolume1.intervals = 1
+EVolume1.reduction_type = integral
+EVolume1.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz) = "if((y <  l_Al) * (z > w_Pd) , 0.5*(Ex**2 + Ey**2 + Ez**2)*eps_0*eps_r_SiO2, 0.5*(Ex**2 + Ey**2 + Ez**2)*eps_0*eps_r_Al)"
+
+
+### Defining volumes for B-Field volume integrals to obtain stored magnetic energy ###
+
+
+BVolume1.type = FieldReduction
+BVolume1.intervals = 1
+BVolume1.reduction_type = integral
+BVolume1.reduced_function(x,y,z,Ex,Ey,Ez,Bx,By,Bz) = "0.5*(Bx**2+By**2+Bz**2)/mu_0"
