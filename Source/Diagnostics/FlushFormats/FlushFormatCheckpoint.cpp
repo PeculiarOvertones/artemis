@@ -86,6 +86,12 @@ FlushFormatCheckpoint::WriteToFile (
                      amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "My_fp"));
         VisMF::Write(warpx.getMfield_fp(lev, 2),
                      amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Mz_fp"));
+        VisMF::Write(warpx.getH_biasfield_fp(lev, 0),
+                     amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hxbias_fp"));
+        VisMF::Write(warpx.getH_biasfield_fp(lev, 1),
+                     amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hybias_fp"));
+        VisMF::Write(warpx.getH_biasfield_fp(lev, 2),
+                     amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hzbias_fp"));
 #endif
 
         if (WarpX::fft_do_time_averaging)
@@ -143,6 +149,12 @@ FlushFormatCheckpoint::WriteToFile (
                          amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "My_cp"));
             VisMF::Write(warpx.getMfield_cp(lev, 2),
                          amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Mz_cp"));
+            VisMF::Write(warpx.getH_biasfield_cp(lev, 0),
+                         amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hxbias_fp"));
+            VisMF::Write(warpx.getH_biasfield_cp(lev, 1),
+                         amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hybias_fp"));
+            VisMF::Write(warpx.getH_biasfield_cp(lev, 2),
+                         amrex::MultiFabFileFullPrefix(lev, checkpointname, default_level_prefix, "Hzbias_fp"));
 #endif
 
             if (WarpX::fft_do_time_averaging)
@@ -254,9 +266,10 @@ FlushFormatCheckpoint::WriteDMaps (const std::string& dir, int nlev) const
 
             DMFile.flush();
             DMFile.close();
-            if (!DMFile.good()) {
-                amrex::Abort("FlushFormatCheckpoint::WriteDMaps: problem writing DMFile");
-            }
+            WARPX_ALWAYS_ASSERT_WITH_MESSAGE(
+                DMFile.good(),
+                "FlushFormatCheckpoint::WriteDMaps: problem writing DMFile"
+            );
         }
     }
 }

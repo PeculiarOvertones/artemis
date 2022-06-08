@@ -16,6 +16,7 @@
 
 #include <AMReX_BaseFwd.H>
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -31,7 +32,7 @@ class Diagnostics
 public:
     Diagnostics (int i, std::string name);
     /** Virtual Destructor to handle clean destruction of derived classes */
-    virtual ~Diagnostics () ;
+    virtual ~Diagnostics ();
     /** Pack (stack) all fields in the cell-centered output MultiFab m_mf_output.
      *
      * Fields are computed (e.g., cell-centered or back-transformed)
@@ -155,6 +156,10 @@ protected:
     std::vector< int > m_pfield_species_index;
     /** Map connecting particle field variable names to the corresponding parser strings */
     std::map< std::string, std::string > m_pfield_strings = {};
+    /** Whether to use a filter function on particles before calculating particle averages */
+    std::map< std::string, bool> m_pfield_dofilter = {};
+    /** Map connecting particle field variable names to parser strings for pre-average filtering */
+    std::map< std::string, std::string > m_pfield_filter_strings = {};
     /** If true, a dump is performed at the last timestep regardless of the required dump timesteps */
     bool m_dump_last_timestep = true;
     /** format for output files, "plotfile" or "openpmd" or "sensei" or "ascent"
