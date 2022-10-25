@@ -1,0 +1,36 @@
+################################
+####### GENERAL PARAMETERS ######
+#################################
+max_step = 100
+my_constants.num_gpu = 512
+my_constants.factor = 4 #cube root of (num_gpu/8)
+
+my_constants.N = factor*512
+my_constants.L = factor*2.e-6
+my_constants.max_size = 512
+
+amr.n_cell = N N N
+geometry.prob_lo     =  -L/2. -L/2. -L/2.
+geometry.prob_hi     =   L/2.  L/2.  L/2.
+
+amr.max_grid_size = max_size
+amr.blocking_factor = max_size
+
+amr.max_level = 0
+geometry.dims = 3
+
+boundary.field_lo = periodic periodic periodic
+boundary.field_hi = periodic periodic periodic
+#################################
+############ NUMERICS ###########
+#################################
+warpx.verbose = 0
+warpx.use_filter = 0
+warpx.cfl = 0.9
+
+algo.em_solver_medium = macroscopic # vacuum/macroscopic
+algo.macroscopic_sigma_method = laxwendroff # laxwendroff or backwardeuler
+
+macroscopic.sigma_function(x,y,z) = "0."
+macroscopic.epsilon_function(x,y,z) = "8.8541878128e-12"
+macroscopic.mu_function(x,y,z) = "1.25663706212e-06"

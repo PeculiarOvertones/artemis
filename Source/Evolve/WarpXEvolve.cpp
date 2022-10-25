@@ -381,7 +381,7 @@ WarpX::Evolve (int numsteps)
         //              << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n";
         //}
 
-	if(step == numsteps_max-1) amrex::Print() << "Total evolve time: " << evolve_time << " for timesteps: " << numsteps_max << ", Average time: " << evolve_time/(step-step_begin+1) << "\n";
+	if(step == numsteps_max-1) amrex::Print() << "Total evolve time: " << evolve_time << "s for timesteps: " << numsteps_max << ", Average time: " << evolve_time/(step-step_begin+1) << "s\n";
 	 
         if (cur_time >= stop_time - 1.e-3*dt[0] || SignalHandling::TestAndResetActionRequestFlag(SignalHandling::SIGNAL_REQUESTS_BREAK)) {
             break;
