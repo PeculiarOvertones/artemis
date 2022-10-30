@@ -7,7 +7,7 @@ my_constants.factor = 8 #cube root of (num_gpu/8)
 
 my_constants.N = factor*512
 my_constants.L = factor*2.e-6
-my_constants.max_size = 512
+my_constants.max_size = 256
 
 amr.n_cell = N N N
 geometry.prob_lo     =  -L/2. -L/2. -L/2.

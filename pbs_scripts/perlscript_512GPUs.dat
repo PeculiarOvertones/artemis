@@ -1,15 +1,21 @@
 #!/bin/bash
-#SBATCH -A m3766_g
+#SBATCH -N 128
 #SBATCH -C gpu
-#SBATCH -q regular
-#SBATCH -t 00:03:00
-#SBATCH -n 128
-#SBATCH --ntasks-per-node=1
-## 2*64/tasks-per-node
-#SBATCH -c 128
-#SBATCH --gpus-per-task=4
-#SBATCH -J ART_WScaling_128GPUs_case3
-#SBATCH -o ART_WScaling_128GPUs_case3_%j.out
-export SLURM_CPU_BIND="cores"
+#SBATCH -G 512
+#SBATCH -J 512GPU_Case1_ART_WS
+#SBATCH --mail-user=saurabhsawant@lbl.gov
+#SBATCH --mail-type=ALL
+#SBATCH -t 00:05:00
+#SBATCH -A m3766_g
+#SBATCH -o 512GPU_Case1_Art_Ws.o%j
+#SBATCH -e 512GPU_Case1_Art_WS.e%j
+#SBATCH --reservation=weak_scaling_saurabh
 
-srun ./../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex ../Examples/Tests/weak_scaling/periodicBox_128GPUs
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=true
+
+#run the application:
+#applications may performance better with --gpu-bind=none instead of --gpu-bind=single:1 
+srun -n 512 -c 32 --cpu_bind=cores -G 512 --gpu-bind=single:1  ./../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex ../Examples/Tests/weak_scaling/periodicBox_512GPUs
