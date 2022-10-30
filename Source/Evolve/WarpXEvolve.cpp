@@ -373,13 +373,15 @@ WarpX::Evolve (int numsteps)
 
         HandleSignals();
 
-        if (verbose) {
-            amrex::Print()<< "STEP " << step+1 << " ends." << " TIME = " << cur_time
-                        << " DT = " << dt[0] << "\n";
-            amrex::Print()<< "Evolve time = " << evolve_time
-                      << " s; This step = " << evolve_time_end_step-evolve_time_beg_step
-                      << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n";
-        }
+        //if (verbose) {
+        //    amrex::Print()<< "STEP " << step+1 << " ends." << " TIME = " << cur_time
+        //                << " DT = " << dt[0] << "\n";
+        //    amrex::Print()<< "Evolve time = " << evolve_time
+        //              << " s; This step = " << evolve_time_end_step-evolve_time_beg_step
+        //              << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n";
+        //}
+
+	if(step == numsteps_max-1) amrex::Print() << "Evolve time = " << evolve_time << "s\n";
 
         if (cur_time >= stop_time - 1.e-3*dt[0] || SignalHandling::TestAndResetActionRequestFlag(SignalHandling::SIGNAL_REQUESTS_BREAK)) {
             break;
