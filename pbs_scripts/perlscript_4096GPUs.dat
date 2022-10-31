@@ -5,7 +5,7 @@
 #SBATCH -J 4096GPU_Case1_ART_WS
 #SBATCH --mail-user=saurabhsawant@lbl.gov
 #SBATCH --mail-type=ALL
-#SBATCH -t 00:10:00
+#SBATCH -t 00:02:00
 #SBATCH -A m3766_g
 #SBATCH -o 4096GPU_Case1_Art_Ws.o%j
 #SBATCH -e 4096GPU_Case1_Art_WS.e%j
