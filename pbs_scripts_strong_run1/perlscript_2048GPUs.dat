@@ -18,4 +18,4 @@ export OMP_PROC_BIND=true
 
 #run the application:
 #applications may performance better with --gpu-bind=none instead of --gpu-bind=single:1 
-srun -n 2048 -c 32 --cpu_bind=cores -G 2048 --gpu-bind=single:1  srun ./../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex ../Examples/Tests/strong_scaling/periodicBox_2048GPUs
+srun -n 2048 -c 32 --cpu_bind=cores -G 2048 --gpu-bind=single:1  ./../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex ../Examples/Tests/strong_scaling/periodicBox_2048GPUs
