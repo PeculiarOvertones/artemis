@@ -2,13 +2,13 @@
 #SBATCH -N 512
 #SBATCH -C gpu
 #SBATCH -G 2048
-#SBATCH -J 2048GPU_Case1_ART_SS
+#SBATCH -J S2048C1
 #SBATCH --mail-user=saurabhsawant@lbl.gov
 #SBATCH --mail-type=ALL
 #SBATCH -t 00:02:00
 #SBATCH -A m3766_g
-#SBATCH -o 2048GPU_Case1_Art_SS.o%j
-#SBATCH -e 2048GPU_Case1_Art_SS.e%j
+#SBATCH -o S2048C1.o%j
+#SBATCH -e S2048C1.e%j
 #SBATCH --reservation=weak_scaling_saurabh
 
 #OpenMP settings:
