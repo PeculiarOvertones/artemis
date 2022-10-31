@@ -7,7 +7,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH -t 00:01:00
 #SBATCH -A m3766_g
-#SBATCH -o 8GPU_Case1_Art_Ws.o%j
+#SBATCH -o 8GPU_Case1_Art_WS.o%j
 #SBATCH -e 8GPU_Case1_Art_WS.e%j
 #SBATCH --reservation=weak_scaling_saurabh
 
