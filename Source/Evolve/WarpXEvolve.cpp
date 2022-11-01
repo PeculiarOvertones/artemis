@@ -89,7 +89,7 @@ WarpX::Evolve (int numsteps)
 
         // Start loop on time steps
         //if (verbose) {
-        //    amrex::Print() << "\nSTEP " << step+1 << " starts ...\n";
+            amrex::Print() << "\nSTEP " << step+1 << " starts ...\n";
         //}
         ExecutePythonCallback("beforestep");
 
@@ -374,11 +374,11 @@ WarpX::Evolve (int numsteps)
         HandleSignals();
 
         //if (verbose) {
-        //    amrex::Print()<< "STEP " << step+1 << " ends." << " TIME = " << cur_time
-        //                << " DT = " << dt[0] << "\n";
-        //    amrex::Print()<< "Evolve time = " << evolve_time
-        //              << " s; This step = " << evolve_time_end_step-evolve_time_beg_step
-        //              << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n";
+            amrex::Print()<< "STEP " << step+1 << " ends." << " TIME = " << cur_time
+                        << " DT = " << dt[0] << "\n";
+            amrex::Print()<< "Evolve time = " << evolve_time
+                      << " s; This step = " << evolve_time_end_step-evolve_time_beg_step
+                      << " s; Avg. per step = " << evolve_time/(step-step_begin+1) << " s\n";
         //}
 
 	if(step == numsteps_max-1) amrex::Print() << "Total evolve time: " << evolve_time << "s for timesteps: " << numsteps_max << ", Average time: " << evolve_time/(step-step_begin+1) << "s\n";
