@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH -N 1024
+#SBATCH -C gpu
+#SBATCH -G 4096
+#SBATCH -J W1024
+# SBATCH -q regular
+#SBATCH --reservation=weak_scaling_test2_saurabh
+# SBATCH --array=0-2
+#SBATCH --mail-user=saurabhsawant@lbl.gov
+#SBATCH --mail-type=ALL
+#SBATCH -t 00:02:00
+#SBATCH -A m3766_g
+#SBATCH -o %x.o%j
+#SBATCH -e %x.e%j
+
+#OpenMP settings:
+export OMP_NUM_THREADS=1
+export OMP_PLACES=threads
+export OMP_PROC_BIND=true
+
+#run the application:
+#applications may performance better with --gpu-bind=none instead of --gpu-bind=single:1 
+srun -n 4096 -c 32 --cpu_bind=cores -G 4096 --gpu-bind=single:1  ./../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex ../Examples/Tests/weak_scaling/periodicBox_N_$SLURM_JOB_NUM_NODES

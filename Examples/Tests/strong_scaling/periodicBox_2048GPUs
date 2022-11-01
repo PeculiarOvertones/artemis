@@ -6,7 +6,7 @@ my_constants.num_gpu = 2048
 
 my_constants.N = 1360
 my_constants.L = 2.e-6
-amr.max_grid_size = 170 170 85
+amr.max_grid_size = 170 85 85
 
 amr.n_cell = N N N
 geometry.prob_lo     =  -L/2. -L/2. -L/2.

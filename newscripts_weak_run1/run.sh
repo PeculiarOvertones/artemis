@@ -9,7 +9,7 @@ else
 fi
 
 EXE=../Bin/main3d.gnu.TPROF.MTMPI.CUDA.GPUCLOCK.ex
-INPUTS=../Examples/Tests/weak_scaling/periodicBox_8GPUs
+INPUTS=../Examples/Tests/weak_scaling/periodicBox_N_$2
 FLAGS=
 
 if [ $3 == 1 ]

@@ -1,24 +1,23 @@
 #!/bin/bash -l
 #SBATCH -C gpu
 #SBATCH -t 00:01:00
-#SBATCH -J W4096
-#SBATCH -o W4096.o%j
-#SBATCH -e W4096.e%j
-#SBATCH -A m3766_g
-#SBATCH -N 1024
+#SBATCH -N 16
+#SBATCH -J W16
 #SBATCH -q regular
+# SBATCH --reservation=weak_scaling_test2_saurabh
+# SBATCH --array=0-2
+#SBATCH -o %x.o%j
+#SBATCH -e %x.e%j
+#SBATCH -A m3766_g
 #SBATCH --exclusive
 #SBATCH --ntasks-per-node=4
 #SBATCH --gpus-per-node=4
-#SBATCH --array=0-2
 
 # EXE=../Bin/main3d.gnu.TPROF.MPI.CUDA.ex
-# INPUTS=../Examples/Tests/weak_scaling/periodicBox_4096GPUs
-
-#OpenMP settings:
+# INPUTS=../Examples/Tests/weak_scaling/periodicBox_8GPUs
 
 PROPER_AFFINITY=1
 CUDA_AWARE=1
 SRUN_FLAGS="--cpus-per-task=32 --cpu-bind=cores"
 #run the application:
-srun ${SRUN_FLAGS} run_me_4096.sh $PROPER_AFFINITY $SLURM_JOB_NUM_NODES $CUDA_AWARE
+srun ${SRUN_FLAGS} run.sh $PROPER_AFFINITY $SLURM_JOB_NUM_NODES $CUDA_AWARE
